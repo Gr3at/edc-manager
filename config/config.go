@@ -14,6 +14,14 @@ func LoadConfig() {
 	}
 }
 
+func GetHost() string {
+	host := os.Getenv("HOST")
+	if host == "" {
+		host = "localhost" // Default host if not provided
+	}
+	return host
+}
+
 func GetPort() string {
 	// Fetch the port from the environment variable
 	port := os.Getenv("PORT")
@@ -21,4 +29,31 @@ func GetPort() string {
 		port = "8080" // Default port if not provided
 	}
 	return port
+}
+
+func GetSecret() string {
+	// Fetch the secret from the environment variable
+	secret := os.Getenv("SECRET")
+	if secret == "" {
+		secret = "default-server-secret" // Default secret if not provided
+	}
+	return secret
+}
+
+func GetJWKSURL() string {
+	// Fetch the jwksUrl from the environment variable
+	jwksUrl := os.Getenv("JWKS_URL")
+	if jwksUrl == "" {
+		jwksUrl = "https://daps.ds.energy.tecnalia.dev/realms/omega-x/protocol/openid-connect/certs" // Default jwksUrl if not provided
+	}
+	return jwksUrl
+}
+
+func GetTrustedIssuer() string {
+	// Fetch the issuer from the environment variable
+	issuer := os.Getenv("ISSUER")
+	if issuer == "" {
+		issuer = "https://daps.ds.energy.tecnalia.dev/realms/omega-x" // Default issuer if not provided
+	}
+	return issuer
 }

@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func CreateResources(data map[string]interface{}) error {
+var CreateResources = func(data map[string]interface{}) error {
 	// Prepare the request to third-party service
 	jsonData, _ := json.Marshal(data)
 	resp, err := http.Post("https://third-party-service.com/api/resource", "application/json", bytes.NewBuffer(jsonData))

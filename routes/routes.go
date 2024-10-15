@@ -9,14 +9,14 @@ import (
 
 func SetupRoutes(router *gin.Engine) {
 	// Public routes - None
-	router.GET("/health", controllers.GetServiceHealth)
+	router.GET("/status", controllers.GetServiceStatus)
 
 	// Protected routes (require JWT)
 	protected := router.Group("/")
 	protected.Use(middleware.JWTAuthMiddleware())
 	{
-		router.POST("/connectors", controllers.AddConnector)
-		router.GET("/connectors", controllers.GetConnectors)
+		protected.POST("/connectors", controllers.AddConnector)
+		protected.GET("/connectors", controllers.GetConnectors)
 		protected.POST("/create-offering", controllers.CreateOffering)
 	}
 }

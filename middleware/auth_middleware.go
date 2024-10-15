@@ -16,7 +16,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 		// Log the request with the token (if present)
 		utils.Log.WithFields(logrus.Fields{
 			"token": tokenString,
-		}).Info("Validating JWT token")
+		}).Debug("Validating JWT")
 
 		if tokenString == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token not provided"})
@@ -24,8 +24,8 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Validate the token
-		_, err := utils.ValidateJWT(tokenString)
+		// Introspect the token
+		token, err := utils.IntrospectJWT(tokenString)
 		if err != nil {
 			// Log the error
 			utils.Log.WithFields(logrus.Fields{
@@ -40,9 +40,31 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 		// Log successful validation
 		utils.Log.WithFields(logrus.Fields{
 			"token": tokenString,
-		}).Info("JWT token validated successfully")
+		}).Debug("JWT token validated successfully")
 
-		// Token is valid, proceed
+		subject, err := utils.GetTokenClaim(token, "sub")
+		if err != nil {
+			utils.Log.WithFields(logrus.Fields{
+				"error": err.Error(),
+				"token": tokenString,
+			}).Error("sub claim error")
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			c.Abort()
+			return
+		}
+		organization, err := utils.GetTokenClaim(token, "organization")
+		if err != nil {
+			utils.Log.WithFields(logrus.Fields{
+				"error": err.Error(),
+				"token": tokenString,
+			}).Error("organization claim error")
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			c.Abort()
+			return
+		}
+		c.Set("currentUserSub", subject)
+		c.Set("currentUserOrg", organization)
+
 		c.Next()
 	}
 }
