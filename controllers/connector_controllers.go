@@ -11,8 +11,8 @@ import (
 )
 
 type connectorInput struct {
-	APIUrl string `json:"api_url" binding:"required;min=10"`
-	APIKey string `json:"api_key" binding:"required;min=2"`
+	APIUrl string `json:"api_url" binding:"required,min=10"`
+	APIKey string `json:"api_key" binding:"required,min=2"`
 	// SubID                  string `json:"sub_id" binding:"required"`
 	// OrgID                  string `json:"org_id" binding:"required"`
 	// AvailableToAllOrgUsers bool `json:"available_to_all_org_users"`
@@ -23,7 +23,7 @@ type connectorOutput struct {
 	APIUrl string    `json:"api_url"`
 }
 
-func AddConnector(c *gin.Context) {
+func CreateConnector(c *gin.Context) {
 	var input connectorInput
 
 	// Validate JSON input
@@ -86,21 +86,22 @@ func GetOrgConnector(c *gin.Context) {
 
 	result := config.DB.Where("org_id = ?", orgID).First(&orgConnector)
 
+	if result.RowsAffected == 0 {
+		c.Status(http.StatusNotFound)
+		return
+	}
+
 	if result.Error != nil {
 		utils.Log.Errorf("Error fetching the organization's connector: %v", result.Error)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to retrieve the organization's connector"})
 		return
 	}
 
-	if result.RowsAffected == 0 {
-		c.JSON(http.StatusOK, connectorOutput{})
-	} else {
-		output := connectorOutput{
-			ID:     orgConnector.ID,
-			APIUrl: orgConnector.APIUrl,
-		}
-		c.JSON(http.StatusOK, output)
+	output := connectorOutput{
+		ID:     orgConnector.ID,
+		APIUrl: orgConnector.APIUrl,
 	}
+	c.JSON(http.StatusOK, output)
 }
 
 func UpdateConnector(c *gin.Context) {
@@ -176,7 +177,7 @@ func DeleteConnector(c *gin.Context) {
 	}
 
 	// Delete the connector
-	deleteResult := config.DB.Delete(&orgConnector)
+	deleteResult := config.DB.Unscoped().Delete(&orgConnector)
 	if deleteResult.Error != nil {
 		utils.Log.Errorf("Error deleting connector: %v", deleteResult.Error)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to delete the connector"})
