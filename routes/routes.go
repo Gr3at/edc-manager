@@ -15,8 +15,9 @@ func SetupRoutes(router *gin.Engine) {
 	protected := router.Group("/")
 	protected.Use(middleware.JWTAuthMiddleware())
 	{
-		protected.POST("/connectors", controllers.AddConnector)
-		protected.GET("/connectors", controllers.GetConnectors)
-		protected.POST("/create-offering", controllers.CreateOffering)
+		protected.POST("/connector", controllers.AddConnector)
+		protected.GET("/connector", controllers.GetOrgConnector)
+		protected.PUT("/connector", controllers.UpdateConnector)
+		protected.DELETE("/connector", controllers.DeleteConnector)
 	}
 }

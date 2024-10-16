@@ -12,18 +12,9 @@ type Connector struct {
 	CreatedAt              time.Time      `json:"-" gorm:"column:created_at"`
 	UpdatedAt              time.Time      `json:"-" gorm:"column:updated_at"`
 	DeletedAt              gorm.DeletedAt `json:"-" gorm:"column:deleted_at;index"`
-	APIUrl                 string         `json:"api_url" gorm:"unique"`
+	APIUrl                 string         `json:"api_url" gorm:"column:api_url"`
 	APIKey                 string         `json:"-" gorm:"column:api_key"` // Hide APIKey in responses
-	SubID                  string         `json:"-" gorm:"column:sub_id"`
-	OrgID                  string         `json:"-" gorm:"column:org_id"`
-	AvailableToAllOrgUsers bool           `json:"-"` // `json:"available_to_all_org_users"`
+	UpdatedBySubID         string         `json:"-" gorm:"column:updated_by_sub_id"`
+	OrgID                  string         `json:"-" gorm:"column:org_id;unique"`
+	AvailableToAllOrgUsers bool           `json:"-" gorm:"default:true"` // potential future column. in case the record belongs to single user instead of org
 }
-
-// BeforeCreate is a GORM hook that runs before a record is inserted in the database
-// It ensures that a UUID is generated if not provided
-// func (c *Connector) BeforeCreate(tx *gorm.DB) (err error) {
-// 	if c.ID == uuid.Nil {
-// 		c.ID = uuid.New() // Generate a new UUID
-// 	}
-// 	return
-// }
