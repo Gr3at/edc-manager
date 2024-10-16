@@ -45,7 +45,6 @@ func AddConnector(c *gin.Context) {
 	utils.Log.Debugf("AddConnector context: %s - %s", subID, orgID)
 
 	secretKey := config.GetSecret()
-	// aesSecretKey := utils.GenerateAESKey(secretKey)
 	encryptedAPIKey, err := utils.EncryptAPIKey(input.APIKey, secretKey)
 	if err != nil {
 		utils.Log.Errorf("Error adding new record. ApiKey error: %v", err)
