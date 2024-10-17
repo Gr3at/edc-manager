@@ -12,7 +12,7 @@ import (
 
 func TestAddConnector(t *testing.T) {
 	router := gin.Default()
-	router.POST("/connectors", AddConnector)
+	router.POST("/connectors", CreateConnector)
 
 	payload := `{
 		"api_url": "https://example.com/api",
@@ -33,7 +33,7 @@ func TestAddConnector(t *testing.T) {
 
 func TestGetConnectors(t *testing.T) {
 	router := gin.Default()
-	router.GET("/connectors", GetConnectors)
+	router.GET("/connectors", GetOrgConnector)
 
 	req, _ := http.NewRequest("GET", "/connectors", nil)
 	w := httptest.NewRecorder()

@@ -11,16 +11,18 @@ import (
 )
 
 type connectorInput struct {
-	APIUrl string `json:"api_url" binding:"required,min=10"`
-	APIKey string `json:"api_key" binding:"required,min=2"`
+	APIUrl          string                 `json:"api_url" binding:"required,min=10"`
+	Credentials     string                 `json:"credentials" binding:"required,min=2"`
+	CredentialsType models.CredentialsType `json:"credentials_type" binding:"required,min=3"`
 	// SubID                  string `json:"sub_id" binding:"required"`
 	// OrgID                  string `json:"org_id" binding:"required"`
 	// AvailableToAllOrgUsers bool `json:"available_to_all_org_users"`
 }
 
 type connectorOutput struct {
-	ID     uuid.UUID `json:"id"`
-	APIUrl string    `json:"api_url"`
+	ID              uuid.UUID              `json:"id"`
+	APIUrl          string                 `json:"api_url"`
+	CredentialsType models.CredentialsType `json:"credentials_type"`
 }
 
 func CreateConnector(c *gin.Context) {
@@ -45,18 +47,19 @@ func CreateConnector(c *gin.Context) {
 	utils.Log.Debugf("AddConnector context: %s - %s", subID, orgID)
 
 	secretKey := config.GetSecret()
-	encryptedAPIKey, err := utils.EncryptAPIKey(input.APIKey, secretKey)
+	encryptedKey, err := utils.EncryptKey(input.Credentials, secretKey)
 	if err != nil {
-		utils.Log.Errorf("Error adding new record. ApiKey error: %v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Unable to create record. ApiKey error."})
+		utils.Log.Errorf("Error adding new record. Credentials error: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Unable to create record. Credentials error."})
 		return
 	}
 
 	record := models.Connector{
-		APIUrl:         input.APIUrl,
-		APIKey:         encryptedAPIKey, // Keep this secret
-		UpdatedBySubID: subID.(string),
-		OrgID:          orgID.(string),
+		APIUrl:          input.APIUrl,
+		Credentials:     encryptedKey,
+		CredentialsType: input.CredentialsType,
+		UpdatedBySubID:  subID.(string),
+		OrgID:           orgID.(string),
 		// AvailableToAllOrgUsers: input.AvailableToAllOrgUsers,
 	}
 
@@ -98,8 +101,9 @@ func GetOrgConnector(c *gin.Context) {
 	}
 
 	output := connectorOutput{
-		ID:     orgConnector.ID,
-		APIUrl: orgConnector.APIUrl,
+		ID:              orgConnector.ID,
+		APIUrl:          orgConnector.APIUrl,
+		CredentialsType: orgConnector.CredentialsType,
 	}
 	c.JSON(http.StatusOK, output)
 }
@@ -131,9 +135,17 @@ func UpdateConnector(c *gin.Context) {
 	}
 	// end - retrieve db connector record
 
+	secretKey := config.GetSecret()
+	encryptedKey, err := utils.EncryptKey(input.Credentials, secretKey)
+	if err != nil {
+		utils.Log.Errorf("Error updating record. Credentials error: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Unable to update record. Credentials error."})
+		return
+	}
 	// create db record
 	orgConnector.APIUrl = input.APIUrl
-	orgConnector.APIKey = input.APIKey
+	orgConnector.Credentials = encryptedKey
+	orgConnector.CredentialsType = input.CredentialsType
 	saveResult := config.DB.Save(&orgConnector)
 
 	if saveResult.Error != nil {
@@ -147,8 +159,9 @@ func UpdateConnector(c *gin.Context) {
 	utils.Log.Infof("Record update committed with id: %s", orgConnector.ID)
 
 	output := connectorOutput{
-		ID:     orgConnector.ID,
-		APIUrl: orgConnector.APIUrl,
+		ID:              orgConnector.ID,
+		APIUrl:          orgConnector.APIUrl,
+		CredentialsType: orgConnector.CredentialsType,
 	}
 
 	c.JSON(http.StatusOK, output)

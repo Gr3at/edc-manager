@@ -1,0 +1,174 @@
+openapi: 3.0.0
+info:
+  title: EDC Proxy API
+  description: API to manage connectors for organizations, including creation, retrieval, update, and deletion of connector credentials.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local Development Server
+
+tags:
+  - name: Monitoring
+    description: Web App operational status monitoring
+  - name: Connector
+    description: Connector Credential Management
+
+paths:
+  /status:
+    get:
+      summary: Check service status
+      tags:
+        - Monitoring
+      operationId: getServiceStatus
+      responses:
+        "200":
+          description: Service is up and running
+        "500":
+          description: Internal server error
+
+  /connector:
+    post:
+      summary: Create a new connector credentials record
+      tags:
+        - Connector
+      operationId: createConnector
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Connector input data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConnectorInput"
+      responses:
+        "201":
+          description: Connector credentials created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Connector"
+        "400":
+          description: Bad request, validation failed or credentials error
+        "401":
+          description: Unauthorized, sub ID or organization ID not found
+        "500":
+          description: Internal server error
+
+    get:
+      summary: Get the connector connection info for the current organization
+      tags:
+        - Connector
+      operationId: getOrgConnector
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Connector retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConnectorOutput"
+        "404":
+          description: Connector not found for the organization
+        "500":
+          description: Internal server error
+
+    put:
+      summary: Update the connector for the current organization
+      tags:
+        - Connector
+      operationId: updateConnector
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Connector update data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConnectorInput"
+      responses:
+        "200":
+          description: Connector updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConnectorOutput"
+        "400":
+          description: Bad request, validation failed or credentials error
+        "404":
+          description: Connector not found
+        "500":
+          description: Internal server error
+
+    delete:
+      summary: Delete the connector for the current organization
+      tags:
+        - Connector
+      operationId: deleteConnector
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Connector deleted successfully
+        "404":
+          description: Connector not found for the organization
+        "500":
+          description: Internal server error
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ConnectorInput:
+      type: object
+      properties:
+        api_url:
+          type: string
+          example: https://example.com/api
+          description: The API URL for the connector
+          minLength: 10
+        credentials:
+          type: string
+          example: connector credentials
+          description: The credentials for the connector
+          minLength: 2
+        credentials_type:
+          type: string
+          description: The type of credentials used by the connector
+          enum: [api_key, client_credentials, pat]
+      required:
+        - api_url
+        - credentials
+        - credentials_type
+
+    ConnectorOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the connector
+        api_url:
+          type: string
+          example: https://example.com/api
+          description: The API URL for the connector
+        credentials_type:
+          type: string
+          description: The type of credentials used by the connector
+          enum: [api_key, client_credentials, pat]
+
+    Connector:
+      allOf:
+        - $ref: "#/components/schemas/ConnectorOutput"
+        - type: object
+          properties:
+            credentials:
+              type: string
+              example: connector credentials
+              description: Credentials for the connector

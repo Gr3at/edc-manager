@@ -14,8 +14,8 @@ func hashTo32Bytes(input string) []byte {
 	return hash[:]
 }
 
-// Encrypt APIKey using AES encryption
-func EncryptAPIKey(apiKey, secretKeyStr string) (string, error) {
+// Encrypt Key using AES encryption
+func EncryptKey(key, secretKeyStr string) (string, error) {
 	hashedSecretKey := hashTo32Bytes(secretKeyStr)
 	// Create a new AES cipher using the secret key
 	block, err := aes.NewCipher(hashedSecretKey)
@@ -35,19 +35,19 @@ func EncryptAPIKey(apiKey, secretKeyStr string) (string, error) {
 		return "", err
 	}
 
-	// Encrypt the API key
-	ciphertext := aesGCM.Seal(nonce, nonce, []byte(apiKey), nil)
+	// Encrypt the key
+	ciphertext := aesGCM.Seal(nonce, nonce, []byte(key), nil)
 
 	// Return the encrypted text as a base64-encoded string
 	return base64.StdEncoding.EncodeToString(ciphertext), nil
 }
 
-// Decrypt APIKey using AES encryption
-func DecryptAPIKey(encryptedAPIKey, secretKeyStr string) (string, error) {
+// Decrypt Key using AES encryption
+func DecryptKey(encryptedKey, secretKeyStr string) (string, error) {
 	hashedSecretKey := hashTo32Bytes(secretKeyStr)
 
 	// Decode the base64-encoded string
-	ciphertext, err := base64.StdEncoding.DecodeString(encryptedAPIKey)
+	ciphertext, err := base64.StdEncoding.DecodeString(encryptedKey)
 	if err != nil {
 		return "", err
 	}
@@ -68,7 +68,7 @@ func DecryptAPIKey(encryptedAPIKey, secretKeyStr string) (string, error) {
 	nonceSize := aesGCM.NonceSize()
 	nonce, ciphertext := ciphertext[:nonceSize], ciphertext[nonceSize:]
 
-	// Decrypt the API key
+	// Decrypt the key
 	plaintext, err := aesGCM.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
 		return "", err
