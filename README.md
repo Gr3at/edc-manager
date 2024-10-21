@@ -30,5 +30,10 @@
 # K8S Deployment
 
 To create the secret resource execute the following commands:
-1. `kubectl create secret generic app-secrets --from-env-file=.env.prod --dry-run=client -o yaml`
-2. `kubectl create secret generic regcred --from-file=.dockerconfigjson=config.json --type=kubernetes.io/dockerconfigjson --dry-run=client -o yaml`
+1. (if not present) `kubectl -n marketplace create secret generic edc-proxy-secrets --from-env-file=.env.prod --dry-run=client -o yaml`
+2. (if not present) `kubectl -n marketplace create secret generic marketplace-registry-pull-secrets --from-file=.dockerconfigjson=.docker/config.json --type=kubernetes.io/dockerconfigjson --dry-run=client -o yaml`
+3. (if not present) `sh scripts/deploy-postgres.sh`
+4. (on every development update) `sh scripts/package.sh`
+5. (on every development update) `sh scripts/publish.sh`
+6. (to apply new database migrations - if any changes) `sh scripts/deploy-migration-job.sh`
+7. (on every development update) `sh scripts/deploy-edc-proxy.sh`
