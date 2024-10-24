@@ -47,10 +47,12 @@ func validateJWT(tokenStr string, keySet jwk.Set) (jwt.Token, error) {
 		tokenStr,
 		jwt.WithKeySet(keySet), // Use the JWK set for validation
 		jwt.WithIssuer(issuer), // ensure the token was issued by omega-x realm
-		jwt.WithAudience("omega-x-marketplace"),
+		jwt.WithAudience("account"),
+		jwt.WithClaimValue("azp", "omega-x-marketplace"),
+		// jwt.WithAudience("omega-x-marketplace"),
 		jwt.WithRequiredClaim("sub"),
 		jwt.WithRequiredClaim("organization"),
-		// jwt.WithAcceptableSkew(100*time.Hour),
+		// jwt.WithAcceptableSkew(200*time.Hour),
 		jwt.WithValidate(true), // Validate token claims like `exp`, `iat`
 		// jwt.WithHeaderKey("Authorization"), // only works if HTTP request is available in the context
 	)
