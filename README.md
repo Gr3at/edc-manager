@@ -16,9 +16,10 @@
 
 # Testing
 
-- Test all project folders: `go test ./... -v`
+- Test all project folders: `go test ./... -json -coverprofile cover.out`
+- Open coverage report in the browser: `go tool cover -html=cover.out`
 
-- Bench testing: `go test -bench=.`
+- Bench testing: `go test ./... -bench=.`
 
 - Race condition detector: `CGO_ENABLED=1 go test -race`
 
