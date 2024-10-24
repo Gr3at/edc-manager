@@ -1,5 +1,8 @@
 set -e
-echo "Building container image..."
-podman build -t localhost/edc-proxy:v0.0.1 .
-podman tag localhost/edc-proxy:v0.0.1 registry.atosresearch.eu:18519/edc-proxy:v0.0.1
+
+IMAGE_TAG="${1:-v0.0.1}"
+
+echo "Building container image with tag ${IMAGE_TAG}..."
+podman build -t localhost/edc-proxy:${IMAGE_TAG} .
+podman tag localhost/edc-proxy:${IMAGE_TAG} registry.atosresearch.eu:18519/edc-proxy:${IMAGE_TAG}
 echo "Container image built and tagging completed."
