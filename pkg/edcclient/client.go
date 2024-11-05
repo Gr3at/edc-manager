@@ -43,7 +43,7 @@ func (c *APIClient) SetAuthorizationHeader(req *http.Request) {
 }
 
 // makeRequest is a helper to make HTTP requests.
-func (c *APIClient) makeRequest(method, url string, payload AnyJSON) ([]byte, error) {
+func (c *APIClient) makeRequest(method, url string, payload interface{}) ([]byte, error) {
 	// Marshal payload to JSON
 	body, err := json.Marshal(payload)
 	if err != nil {

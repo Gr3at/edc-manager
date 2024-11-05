@@ -30,3 +30,10 @@ func waitForUserInput(prompt string) {
 	fmt.Print(prompt)
 	_, _ = reader.ReadString('\n') // Waits for the user to press Enter
 }
+
+// QueryPayload defines the expected schema to query assets, policies, contract definitions
+type QueryPayload struct {
+	Type   string `json:"@type"`
+	Offset int    `json:"https://w3id.org/edc/v0.0.1/ns/offset"`
+	Limit  int    `json:"https://w3id.org/edc/v0.0.1/ns/limit"`
+}
