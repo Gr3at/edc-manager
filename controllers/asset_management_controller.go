@@ -3,6 +3,7 @@ package controllers
 import (
 	"edc-proxy/config"
 	"edc-proxy/models"
+	"edc-proxy/pkg/edcclient"
 	"edc-proxy/utils"
 	"fmt"
 	"net/http"
@@ -52,36 +53,49 @@ func GetAssets(c *gin.Context) {
 		return
 	}
 
-	// 2. setup and link connector
-	aSConf := AuthStrategyConfig{ClientID: "", ClientSecret: "", TokenURL: ""}
-	authType := "JWTAuth"
-	authStrategy := NewAuthStrategy(authType, aSConf)
+	var inputQueryPayload edcclient.QueryPayload
 
-	config := Config{
-		ManagementURL: "https://example.com/api/management",
+	// Validate input
+	if err := c.ShouldBindJSON(&inputQueryPayload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 2. setup and link connector
+	panic("Implement logic to read credentials from db and split to id and secret. consider adding token url in the db record")
+	aSConf := edcclient.AuthStrategyConfig{ClientID: "", ClientSecret: "", TokenURL: ""}
+	authStrategy := edcclient.NewAuthStrategy(string(orgConnector.CredentialsType), aSConf)
+
+	config := edcclient.Config{
+		ManagementURL: orgConnector.APIUrl,
 		AuthStrategy:  authStrategy,
 	}
 
-	fmt.Println("Get a new API Client instance")
-	apiClient, err := NewAPIClient(config, nil)
+	utils.Log.Info("Get a new API Client instance")
+	apiClient, err := edcclient.NewAPIClient(config, nil)
 
 	if err != nil {
-		fmt.Printf("error while creating API client from factory: %v\n", err)
+		utils.Log.Errorf("error while creating API client from factory: %v\n", err)
 	}
 
 	// 3. propagate json request to the connector
-	fmt.Println("Make the Get Assets request")
-	byteData, err := apiClient.GetAssets(QueryPayload{
-		Type:   "https://w3id.org/edc/v0.0.1/ns/QuerySpec",
-		Offset: 0,
-		Limit:  20,
-	})
+	utils.Log.Info("Make the Get Assets request")
+	edcResponseBytes, err := apiClient.GetAssets(inputQueryPayload)
 
 	if err != nil {
-		fmt.Printf("Error in GetAssets request: %v\n", err)
-		// t.Errorf("got status %v but wanted %s", err, "")
+		utils.Log.Errorf("Error in GetAssets request: %v\n", err)
 		c.AbortWithError(http.StatusBadRequest, err)
 	}
-	// 4. propagate connector response to end user
-	c.JSON(http.StatusOK, gin.H{"response": string(byteData)})
+
+	c.Data(http.StatusOK, "application/json", edcResponseBytes)
+	// var edcResponsePayload []map[string]interface{}
+
+	// // Validate input
+
+	// if err := json.Unmarshal(edcResponseBytes, &edcResponsePayload); err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	// 	return
+	// }
+	// // 4. propagate connector response to end user
+	// c.JSON(http.StatusOK, edcResponsePayload)
 }

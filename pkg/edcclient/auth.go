@@ -24,7 +24,7 @@ type AuthStrategyConfig struct {
 
 func NewAuthStrategy(authType string, sConf AuthStrategyConfig) AuthStrategy {
 	var authStrategy AuthStrategy
-	if authType == "JWTAuth" {
+	if authType == "client_credentials" {
 		authStrategy = &JWTAuth{
 			ClientID:     sConf.ClientID,
 			ClientSecret: sConf.ClientSecret,

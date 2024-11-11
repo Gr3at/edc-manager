@@ -6,10 +6,10 @@ import (
 )
 
 func TestMain(t *testing.T) {
-	fmt.Println("Starting JWTAuth based use case test")
+	fmt.Println("Starting JWTAuth/client_credentials based use case test")
 
 	aSConf := AuthStrategyConfig{ClientID: "", ClientSecret: "", TokenURL: ""}
-	authType := "JWTAuth"
+	authType := "client_credentials"
 	authStrategy := NewAuthStrategy(authType, aSConf)
 
 	config := Config{
