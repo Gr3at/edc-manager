@@ -7,20 +7,10 @@ import (
 
 func TestMain(t *testing.T) {
 	fmt.Println("Starting JWTAuth based use case test")
-	var authStrategy AuthStrategy
-	auth_type := "JWTAuth"
 
-	if auth_type == "JWTAuth" {
-		authStrategy = &JWTAuth{
-			ClientID:     "",
-			ClientSecret: "",
-			TokenURL:     "",
-		}
-	} else {
-		authStrategy = &APIKeyAuth{
-			APIKey: "",
-		}
-	}
+	aSConf := AuthStrategyConfig{ClientID: "", ClientSecret: "", TokenURL: ""}
+	authType := "JWTAuth"
+	authStrategy := NewAuthStrategy(authType, aSConf)
 
 	config := Config{
 		ManagementURL: "https://example.com/api/management",
@@ -35,10 +25,10 @@ func TestMain(t *testing.T) {
 	}
 
 	fmt.Println("Make the Get Assets request")
-	byteData, err := apiClient.GetAssets(AnyJSON{
-		"@type":                                 "https://w3id.org/edc/v0.0.1/ns/QuerySpec",
-		"https://w3id.org/edc/v0.0.1/ns/offset": 0,
-		"https://w3id.org/edc/v0.0.1/ns/limit":  20,
+	byteData, err := apiClient.GetAssets(QueryPayload{
+		Type:   "https://w3id.org/edc/v0.0.1/ns/QuerySpec",
+		Offset: 0,
+		Limit:  20,
 	})
 
 	if err != nil {

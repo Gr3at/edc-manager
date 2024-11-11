@@ -15,6 +15,29 @@ type AuthStrategy interface {
 	SetAuthHeader(req *http.Request)
 }
 
+type AuthStrategyConfig struct {
+	ClientID     string
+	ClientSecret string
+	TokenURL     string
+	APIKey       string
+}
+
+func NewAuthStrategy(authType string, sConf AuthStrategyConfig) AuthStrategy {
+	var authStrategy AuthStrategy
+	if authType == "JWTAuth" {
+		authStrategy = &JWTAuth{
+			ClientID:     sConf.ClientID,
+			ClientSecret: sConf.ClientSecret,
+			TokenURL:     sConf.TokenURL,
+		}
+	} else {
+		authStrategy = &APIKeyAuth{
+			APIKey: sConf.APIKey,
+		}
+	}
+	return authStrategy
+}
+
 // JWTAuth is a concrete strategy that handles JWT Bearer Token authentication.
 type JWTAuth struct {
 	ClientID     string // For OAuth2 client credentials
