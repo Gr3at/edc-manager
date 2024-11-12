@@ -29,7 +29,14 @@ func setupConnectorRoutes(group *gin.RouterGroup) {
 
 func setupAssetsRoutes(group *gin.RouterGroup) {
 	assets := group.Group("/assets")
-	// assets.POST("/", controllers.CreateConnector)        // Create asset
-	assets.POST("/request", controllers.GetAssets) // List assets
-	// assets.DELETE("/", controllers.DeleteConnector)      // Delete asset
+	assets.POST("/", controllers.CreateAsset)           // Create asset
+	assets.POST("/request", controllers.GetAssets)      // List assets
+	assets.DELETE("/:assetID", controllers.DeleteAsset) // Delete asset
 }
+
+// func setupAssetsRoutes(group *gin.RouterGroup) {
+// 	assets := group.Group("/assets")
+// 	assets.POST("/", controllers.CreateAsset)           // Create asset
+// 	assets.POST("/request", controllers.GetAssets)      // List assets
+// 	assets.DELETE("/:assetID", controllers.DeleteAsset) // Delete asset
+// }
