@@ -17,26 +17,50 @@ func SetupRoutes(router *gin.Engine) {
 
 	setupConnectorRoutes(protected)
 	setupAssetsRoutes(protected)
+	setupPolicyRoutes(protected)
+	setupContractDefinitionRoutes(protected)
+	setupContractNegotiationRoutes(protected)
+	setupContractAgreementRoutes(protected)
 }
 
 func setupConnectorRoutes(group *gin.RouterGroup) {
-	connector := group.Group("/connector")
-	connector.POST("/", controllers.CreateConnector)
-	connector.GET("/", controllers.GetOrgConnector)
-	connector.PUT("/", controllers.UpdateConnector)
-	connector.DELETE("/", controllers.DeleteConnector)
+	connectorGroup := group.Group("/connector")
+	connectorGroup.POST("/", controllers.CreateConnector)
+	connectorGroup.GET("/", controllers.GetOrgConnector)
+	connectorGroup.PUT("/", controllers.UpdateConnector)
+	connectorGroup.DELETE("/", controllers.DeleteConnector)
 }
 
 func setupAssetsRoutes(group *gin.RouterGroup) {
-	assets := group.Group("/assets")
-	assets.POST("/", controllers.CreateAsset)           // Create asset
-	assets.POST("/request", controllers.GetAssets)      // List assets
-	assets.DELETE("/:assetID", controllers.DeleteAsset) // Delete asset
+	assetsGroup := group.Group("/assets")
+	assetsGroup.POST("/", controllers.CreateAsset)           // Create asset
+	assetsGroup.POST("/request", controllers.GetAssets)      // List assets
+	assetsGroup.DELETE("/:assetID", controllers.DeleteAsset) // Delete asset
 }
 
-// func setupAssetsRoutes(group *gin.RouterGroup) {
-// 	assets := group.Group("/assets")
-// 	assets.POST("/", controllers.CreateAsset)           // Create asset
-// 	assets.POST("/request", controllers.GetAssets)      // List assets
-// 	assets.DELETE("/:assetID", controllers.DeleteAsset) // Delete asset
-// }
+func setupPolicyRoutes(group *gin.RouterGroup) {
+	policyGroup := group.Group("/policydefinitions")
+	policyGroup.POST("/", controllers.CreatePolicy)            // Create policy
+	policyGroup.POST("/request", controllers.GetPolicies)      // List policies
+	policyGroup.DELETE("/:policyID", controllers.DeletePolicy) // Delete policy
+}
+
+func setupContractDefinitionRoutes(group *gin.RouterGroup) {
+	contractDefinitionsGroup := group.Group("/contractdefinitions")
+	contractDefinitionsGroup.POST("/", controllers.CreateContractDefinition)
+	contractDefinitionsGroup.POST("/request", controllers.GetContractDefinitions)
+	contractDefinitionsGroup.DELETE("/:contractDefinitionID", controllers.DeleteContractDefinition)
+}
+
+func setupContractNegotiationRoutes(group *gin.RouterGroup) {
+	contractNegotiationsGroup := group.Group("/contractnegotiations")
+	contractNegotiationsGroup.POST("/", controllers.StartContractNegotiation)
+	contractNegotiationsGroup.POST("/request", controllers.GetContractNegotiations)
+	contractNegotiationsGroup.POST("/:id/cancel", controllers.CancelContractNegotiation)
+	contractNegotiationsGroup.POST("/:id/decline", controllers.DeclineContractNegotiation)
+}
+
+func setupContractAgreementRoutes(group *gin.RouterGroup) {
+	contractAgreementsGroup := group.Group("/contractagreements")
+	contractAgreementsGroup.POST("/request", controllers.GetContractAgreements)
+}
