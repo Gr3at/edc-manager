@@ -21,6 +21,7 @@ func SetupRoutes(router *gin.Engine) {
 	setupContractDefinitionRoutes(protected)
 	setupContractNegotiationRoutes(protected)
 	setupContractAgreementRoutes(protected)
+	setupCatalogueRoutes(protected)
 }
 
 func setupConnectorRoutes(group *gin.RouterGroup) {
@@ -63,4 +64,9 @@ func setupContractNegotiationRoutes(group *gin.RouterGroup) {
 func setupContractAgreementRoutes(group *gin.RouterGroup) {
 	contractAgreementsGroup := group.Group("/contractagreements")
 	contractAgreementsGroup.POST("/request", controllers.GetContractAgreements)
+}
+
+func setupCatalogueRoutes(group *gin.RouterGroup) {
+	catalogueGroup := group.Group("/catalog")
+	catalogueGroup.POST("/request", controllers.RequestCatalogue)
 }

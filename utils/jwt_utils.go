@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"edc-proxy/config"
 	"io"
@@ -52,7 +53,7 @@ func validateJWT(tokenStr string, keySet jwk.Set) (jwt.Token, error) {
 		// jwt.WithAudience("omega-x-marketplace"),
 		jwt.WithRequiredClaim("sub"),
 		jwt.WithRequiredClaim("organization"),
-		// jwt.WithAcceptableSkew(200*time.Hour),
+		jwt.WithAcceptableSkew(5*time.Minute),
 		jwt.WithValidate(true), // Validate token claims like `exp`, `iat`
 		// jwt.WithHeaderKey("Authorization"), // only works if HTTP request is available in the context
 	)
