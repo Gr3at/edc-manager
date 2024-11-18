@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"edc-proxy/config"
@@ -53,7 +54,7 @@ func validateJWT(tokenStr string, keySet jwk.Set) (jwt.Token, error) {
 		// jwt.WithAudience("omega-x-marketplace"),
 		jwt.WithRequiredClaim("sub"),
 		jwt.WithRequiredClaim("organization"),
-		jwt.WithAcceptableSkew(5*time.Minute),
+		// jwt.WithAcceptableSkew(5*time.Minute),
 		jwt.WithValidate(true), // Validate token claims like `exp`, `iat`
 		// jwt.WithHeaderKey("Authorization"), // only works if HTTP request is available in the context
 	)
@@ -77,10 +78,17 @@ func IntrospectJWT(tokenString string) (jwt.Token, error) {
 	// Validate the JWT
 	token, err := validateJWT(tokenString, keySet)
 	if err != nil {
-		errorMessage := fmt.Sprintf("Error validating token: %v", err)
-		return nil, errors.New(errorMessage)
+		// debug: check if the token is indeed invalid
+		trustedIssuerURL := config.GetTrustedIssuer()
+		tokenIsValid, validationErr := isAccessTokenValid(trustedIssuerURL+"/protocol/openid-connect/userinfo", tokenString)
+		if validationErr != nil {
+			return nil, fmt.Errorf("error while debugging the validity of the oauth token: %v. validation error: %v", validationErr, err)
+		}
+		if tokenIsValid {
+			return nil, fmt.Errorf("the JWT is valid but was wrongly flagged as invalid. validation error: %v", err)
+		}
+		return nil, fmt.Errorf("error in JWT validation: %v", err)
 	}
-
 	return token, nil
 }
 
@@ -93,4 +101,31 @@ func GetTokenClaim(token jwt.Token, claimKey string) (string, error) {
 	// Convert to strings
 	claimString, _ := claim.(string)
 	return claimString, nil
+}
+
+// Because the introspection endpoint does always return {"active":false} regardless if the token is valid or not, we may utilzie the Get User Info endpoint.
+// If the response is 200, then the access token is valid.
+func isAccessTokenValid(userInfoUrl, accessToken string) (bool, error) {
+	payload := strings.NewReader("")
+	client := &http.Client{
+		Timeout: time.Second * 5,
+	}
+	req, err := http.NewRequest("GET", userInfoUrl, payload)
+
+	if err != nil {
+		return false, fmt.Errorf("failed to wrap user info request. error: %v", err)
+	}
+
+	req.Header.Add("Authorization", "Bearer "+accessToken)
+	res, err := client.Do(req)
+	if err != nil {
+		return false, fmt.Errorf("failed to wrap user info request. error: %v", err)
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode == 200 {
+		return true, nil
+	} else {
+		return false, fmt.Errorf("the access token is invalid. response code from oauth server: %d", res.StatusCode)
+	}
 }
