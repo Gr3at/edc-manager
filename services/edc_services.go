@@ -60,7 +60,7 @@ func SetupAPIClient(orgID string) (*edcclient.APIClient, error) {
 
 		clientID := decryptedCredentials[0]
 		clientSecret := decryptedCredentials[1]
-		aSConf = edcclient.AuthStrategyConfig{ClientID: clientID, ClientSecret: clientSecret, TokenURL: "https://keycloak.prod-sovity.azure.sovity.io/realms/Portal/protocol/openid-connect/token"}
+		aSConf = edcclient.AuthStrategyConfig{ClientID: clientID, ClientSecret: clientSecret, TokenURL: orgConnector.AuthTokenUrl}
 	} else if string(orgConnector.CredentialsType) == "api_key" {
 		aSConf = edcclient.AuthStrategyConfig{APIKey: decryptedPayload}
 	} else {

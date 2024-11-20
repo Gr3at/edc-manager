@@ -23,6 +23,7 @@ type Connector struct {
 	DeletedAt              gorm.DeletedAt  `json:"-" gorm:"column:deleted_at;index"`
 	APIUrl                 string          `json:"api_url" gorm:"column:api_url"`
 	Credentials            string          `json:"-" gorm:"column:credentials"` // Hide credentials in responses
+	AuthTokenUrl           string          `json:"-" gorm:"column:auth_token_url"`
 	CredentialsType        CredentialsType `json:"credentials_type" gorm:"column:credentials_type"`
 	UpdatedBySubID         string          `json:"-" gorm:"column:updated_by_sub_id"`
 	OrgID                  string          `json:"-" gorm:"column:org_id;unique"`

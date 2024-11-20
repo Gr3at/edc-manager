@@ -77,4 +77,10 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 
 		c.Next()
 	}
+
+	// return func(c *gin.Context) {
+	// 	c.Set("currentUserSub", "subject-1234-43534-554g")
+	// 	c.Set("currentUserOrg", "ICOM")
+	// 	c.Next()
+	// }
 }

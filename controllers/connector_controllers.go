@@ -14,6 +14,7 @@ type connectorInput struct {
 	APIUrl          string                 `json:"api_url" binding:"required,min=10"`
 	Credentials     string                 `json:"credentials" binding:"required,min=2"`
 	CredentialsType models.CredentialsType `json:"credentials_type" binding:"required,min=3"`
+	AuthTokenUrl    string                 `json:"auth_token_url"`
 	// SubID                  string `json:"sub_id" binding:"required"`
 	// OrgID                  string `json:"org_id" binding:"required"`
 	// AvailableToAllOrgUsers bool `json:"available_to_all_org_users"`
@@ -54,10 +55,18 @@ func CreateConnector(c *gin.Context) {
 		return
 	}
 
+	if (input.CredentialsType == "client_credentials") && (len(input.AuthTokenUrl) == 0) {
+		errorMessage := "auth_token_url is required for client credentials authorization."
+		utils.Log.Error(errorMessage)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Unable to create record. " + errorMessage})
+		return
+	}
+
 	record := models.Connector{
 		APIUrl:          input.APIUrl,
 		Credentials:     encryptedKey,
 		CredentialsType: input.CredentialsType,
+		AuthTokenUrl:    input.AuthTokenUrl,
 		UpdatedBySubID:  subID.(string),
 		OrgID:           orgID.(string),
 		// AvailableToAllOrgUsers: input.AvailableToAllOrgUsers,
