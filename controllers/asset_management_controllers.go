@@ -107,6 +107,7 @@ func DeleteAsset(c *gin.Context) {
 
 	assetID := c.Param("assetID")
 	edcResponseBytes, err := apiClient.DeleteAsset(assetID)
+	_ = edcResponseBytes
 	if err != nil {
 		handleErrorResponse(c, err, http.StatusBadRequest)
 		return
