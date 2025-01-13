@@ -9,25 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// func CreateAsset(c *gin.Context) {
-// 	var input map[string]interface{}
-
-// 	// Validate input
-// 	if err := c.ShouldBindJSON(&input); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-// 		return
-// 	}
-
-// 	// Call the service to create resources via third-party API
-// 	// err := services.CreateResources(input)
-// 	// if err != nil {
-// 	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create offering"})
-// 	// 	return
-// 	// }
-
-//		c.JSON(http.StatusOK, gin.H{"status": "Offering created"})
-//	}
-
 func CreateAsset(c *gin.Context) {
 	// 1. get connector credentials from db
 	orgID, exists := c.Get("currentUserOrg")
@@ -55,6 +36,40 @@ func CreateAsset(c *gin.Context) {
 	if err != nil {
 		utils.Log.Errorf("Error in CreateAsset request: %v", err)
 		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	c.Data(http.StatusOK, "application/json", edcResponseBytes)
+}
+
+func UpdateAsset(c *gin.Context) {
+	// 1. get connector credentials from db
+	orgID, exists := c.Get("currentUserOrg")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Your Organization data could not be retrieved"})
+		return
+	}
+
+	apiClient, err := services.SetupAPIClient(orgID.(string))
+	if err != nil {
+		utils.Log.Errorf("error creating an apiClient to interact with the edc. error details: (%v)", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 2. Validate input
+	var inputPayload edcclient.AnyJSON
+	if err := c.ShouldBindJSON(&inputPayload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 3. propagate json request to the connector
+	edcResponseBytes, err := apiClient.UpdateAsset(inputPayload)
+	if err != nil {
+		utils.Log.Errorf("Error in UpdateAsset request: %v", err)
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
 	}
 
 	c.Data(http.StatusOK, "application/json", edcResponseBytes)
@@ -87,6 +102,7 @@ func GetAssets(c *gin.Context) {
 	if err != nil {
 		// utils.Log.Errorf("Error in GetAssets request: %v", err)
 		c.AbortWithError(http.StatusBadRequest, err)
+		return
 	}
 
 	c.Data(http.StatusOK, "application/json", edcResponseBytes)

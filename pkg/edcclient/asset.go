@@ -9,6 +9,11 @@ func (c *APIClient) CreateAsset(asset AnyJSON) ([]byte, error) {
 	return c.makeRequest("POST", url, asset)
 }
 
+func (c *APIClient) UpdateAsset(asset AnyJSON) ([]byte, error) {
+	url := fmt.Sprintf("%s/v3/assets", c.config.ManagementURL)
+	return c.makeRequest("PUT", url, asset)
+}
+
 func (c *APIClient) GetAssets(requestPayload QueryPayload) ([]byte, error) {
 	url := fmt.Sprintf("%s/v2/assets/request", c.config.ManagementURL)
 
