@@ -35,6 +35,7 @@ func setupConnectorRoutes(group *gin.RouterGroup) {
 func setupAssetsRoutes(group *gin.RouterGroup) {
 	assetsGroup := group.Group("/assets")
 	assetsGroup.POST("/", controllers.CreateAsset)           // Create asset
+	assetsGroup.PUT("/", controllers.UpdateAsset)            // Update asset
 	assetsGroup.POST("/request", controllers.GetAssets)      // List assets
 	assetsGroup.DELETE("/:assetID", controllers.DeleteAsset) // Delete asset
 }
