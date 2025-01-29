@@ -1,0 +1,46 @@
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: edc-proxy-migration-job
+  namespace: marketplace
+spec:
+  # successfulJobsHistoryLimit: 0 # keep n successful pods of the job
+  # failedJobsHistoryLimit: 0 # keep n failed instances/pods of the job
+  ttlSecondsAfterFinished: 100 # remove job after 100 secs
+  template:
+    spec:
+      securityContext:
+        fsGroup: 1001
+        runAsUser: 1001
+        runAsGroup: 1001
+      imagePullSecrets:
+        - name: marketplace-registry-pull-secrets
+      containers:
+        - name: edc-proxy-migration
+          image: registry.atosresearch.eu:18519/edc-proxy:${IMAGE_TAG}
+          imagePullPolicy: Always
+          command: ["/edc-proxy-migrate"]
+          envFrom: #Environmental variables accessible to the Pods from K8S Secrets
+            - secretRef:
+                name: edc-proxy-secrets
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      restartPolicy: Never
+    # spec:
+    #   containers:
+    #     - name: client
+    #       image: "docker.io/curlimages/curl:latest"
+    #       command: ["/bin/sh", "-c"]
+    #       args:
+    #         - echo "Starting HTTP test.";
+    #           curl -Is -w "%{http_code}\n" -o /dev/null http://edc-proxy:8080/api/v1/status;
+    #           echo "HTTP Done!";
+    #       # args: [sleep 100000]
+    #       # args: [/bin/echo "quit" | curl -v telnet://edc-proxy:8080]
+    #   restartPolicy: Never
+  backoffLimit: 2

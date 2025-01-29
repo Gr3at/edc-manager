@@ -1,0 +1,23 @@
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: edc-proxy-client-job
+  namespace: marketplace
+spec:
+  # successfulJobsHistoryLimit: 0 # keep n successful pods of the job
+  # failedJobsHistoryLimit: 0 # keep n failed instances/pods of the job
+  ttlSecondsAfterFinished: 100 # remove job after 100 secs
+  template:
+    spec:
+      containers:
+        - name: client
+          image: "docker.io/curlimages/curl:latest"
+          command: ["/bin/sh", "-c"]
+          args:
+            - echo "Starting HTTP test.";
+              curl -Is -w "%{http_code}\n" -o /dev/null http://edc-proxy:8080/api/v1/status;
+              echo "HTTP Done!";
+          # args: [sleep 100000]
+          # args: [/bin/echo "quit" | curl -v telnet://edc-proxy:8080]
+      restartPolicy: Never
+  backoffLimit: 2
