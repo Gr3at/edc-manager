@@ -2,6 +2,7 @@ package edcclient
 
 import (
 	"bytes"
+	"edc-proxy/utils"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -51,8 +52,8 @@ type JWTAuth struct {
 func (j *JWTAuth) SetAuthHeader(req *http.Request) {
 	token, err := j.getOAuthToken()
 	if (err != nil) || (token == "") {
-		fmt.Println("Error retrieving access token")
-		fmt.Printf("Error details: %v\n", err)
+		utils.Log.Errorf("Error retrieving access token from %s: %v", j.TokenURL, err)
+		return
 	}
 	req.Header.Add("Authorization", "Bearer "+j.accessToken)
 }
