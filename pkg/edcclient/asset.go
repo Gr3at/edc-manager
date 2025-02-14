@@ -15,7 +15,7 @@ func (c *APIClient) UpdateAsset(asset AnyJSON) ([]byte, error) {
 }
 
 func (c *APIClient) GetAssets(requestPayload QueryPayload) ([]byte, error) {
-	url := fmt.Sprintf("%s/v2/assets/request", c.config.ManagementURL)
+	url := fmt.Sprintf("%s/v3/assets/request", c.config.ManagementURL)
 
 	if requestPayload == (QueryPayload{}) {
 		requestPayload = QueryPayload{
@@ -29,6 +29,6 @@ func (c *APIClient) GetAssets(requestPayload QueryPayload) ([]byte, error) {
 }
 
 func (c *APIClient) DeleteAsset(assetID string) ([]byte, error) {
-	url := fmt.Sprintf("%s/v2/assets/%s", c.config.ManagementURL, assetID)
+	url := fmt.Sprintf("%s/v3/assets/%s", c.config.ManagementURL, assetID)
 	return c.makeRequest("DELETE", url, nil)
 }
