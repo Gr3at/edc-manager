@@ -25,7 +25,7 @@ func CreateContractDefinition(c *gin.Context) {
 	}
 
 	// 2. Validate input
-	var inputPayload edcclient.ContractDefinition
+	var inputPayload edcclient.AnyJSON
 	if err := c.ShouldBindJSON(&inputPayload); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

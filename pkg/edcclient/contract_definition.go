@@ -19,7 +19,7 @@ type CriterionDto struct {
 	OperandRight string `json:"https://w3id.org/edc/v0.0.1/ns/operandRight"`
 }
 
-func (c *APIClient) CreateContractDefinition(contractDefinition ContractDefinition) ([]byte, error) {
+func (c *APIClient) CreateContractDefinition(contractDefinition AnyJSON) ([]byte, error) {
 	url := fmt.Sprintf("%s/v2/contractdefinitions", c.config.ManagementURL)
 	return c.makeRequest("POST", url, contractDefinition)
 }
