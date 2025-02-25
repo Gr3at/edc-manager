@@ -14,14 +14,14 @@ func (c *APIClient) UpdateAsset(asset AnyJSON) ([]byte, error) {
 	return c.makeRequest("PUT", url, asset)
 }
 
-func (c *APIClient) GetAssets(requestPayload QueryPayload) ([]byte, error) {
+func (c *APIClient) GetAssets(requestPayload AnyJSON) ([]byte, error) {
 	url := fmt.Sprintf("%s/v3/assets/request", c.config.ManagementURL)
 
-	if requestPayload == (QueryPayload{}) {
-		requestPayload = QueryPayload{
-			Type:   "https://w3id.org/edc/v0.0.1/ns/QuerySpec",
-			Offset: 0,
-			Limit:  20,
+	if requestPayload == nil {
+		requestPayload = AnyJSON{
+			"@type":                                 "https://w3id.org/edc/v0.0.1/ns/QuerySpec",
+			"https://w3id.org/edc/v0.0.1/ns/offset": 0,
+			"https://w3id.org/edc/v0.0.1/ns/limit":  20,
 		}
 	}
 

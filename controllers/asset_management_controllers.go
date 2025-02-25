@@ -84,7 +84,7 @@ func GetAssets(c *gin.Context) {
 		return
 	}
 
-	var inputQueryPayload edcclient.QueryPayload
+	var inputQueryPayload edcclient.AnyJSON
 	if err := c.ShouldBindJSON(&inputQueryPayload); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
