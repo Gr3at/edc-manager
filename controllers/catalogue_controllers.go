@@ -24,7 +24,7 @@ func RequestCatalogue(c *gin.Context) {
 	}
 
 	// 2. Validate input
-	var inputCatalogueRequestBody edcclient.CatalogueRequestBody
+	var inputCatalogueRequestBody edcclient.AnyJSON
 	if err := c.ShouldBindJSON(&inputCatalogueRequestBody); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
