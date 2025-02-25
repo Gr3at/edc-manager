@@ -4,17 +4,17 @@ import (
 	"fmt"
 )
 
-type CatalogueRequestBody struct {
-	Type                string       `json:"@type"`
-	Protocol            string       `json:"https://w3id.org/edc/v0.0.1/ns/protocol"`
-	CounterPartyAddress string       `json:"https://w3id.org/edc/v0.0.1/ns/counterPartyAddress"`
-	QuerySpec           QueryPayload `json:"https://w3id.org/edc/v0.0.1/ns/querySpec"`
-}
+// type CatalogueRequestBody struct {
+// 	Type                string       `json:"@type"`
+// 	Protocol            string       `json:"https://w3id.org/edc/v0.0.1/ns/protocol"`
+// 	CounterPartyAddress string       `json:"https://w3id.org/edc/v0.0.1/ns/counterPartyAddress"`
+// 	QuerySpec           QueryPayload `json:"https://w3id.org/edc/v0.0.1/ns/querySpec"`
+// }
 
-func (c *APIClient) RequestCatalogue(requestPayload CatalogueRequestBody) ([]byte, error) {
+func (c *APIClient) RequestCatalogue(requestPayload AnyJSON) ([]byte, error) {
 	url := fmt.Sprintf("%s/v2/catalog/request", c.config.ManagementURL)
 
-	if requestPayload == (CatalogueRequestBody{}) {
+	if requestPayload == nil {
 		return []byte{}, fmt.Errorf("you need to provide a proper request body to retrieve EDC catalogue data")
 		// requestPayload = CatalogueRequestBody{
 		// 	Type:                "https://w3id.org/edc/v0.0.1/ns/CatalogRequest",
