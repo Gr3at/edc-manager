@@ -75,7 +75,7 @@ func SetupAPIClient(orgID string) (*edcclient.APIClient, error) {
 	}
 
 	utils.Log.Info("Get a new API Client instance")
-	apiClient, err := edcclient.NewAPIClient(config, nil)
+	apiClient, err := edcclient.NewAPIClient(config, nil, utils.Log)
 
 	if err != nil {
 		utils.Log.Errorf("error while creating API client from factory. error details: (%v)", err)

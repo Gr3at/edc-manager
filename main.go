@@ -19,10 +19,10 @@ func init() {
 }
 
 func main() {
-	// Initialize the Gin engine
-	engine := gin.Default()
-	// Set trusted proxies to only those you trust
-	// engine.SetTrustedProxies([]string{"192.168.1.1", "127.0.0.1/24"})
+	gin.DefaultWriter = utils.Log.Writer()
+
+	engine := gin.New()
+	engine.Use(gin.Logger(), gin.Recovery())
 
 	// Set up routes
 	routes.SetupRoutes(engine)
