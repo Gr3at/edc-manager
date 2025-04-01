@@ -1,6 +1,8 @@
 
 # Get started
 
+Before running the service create a local `.env` file. Use the same variables defined in `.env.sample`.
+
 - Run the service: `go mod tidy` & `go run main.go`
 
 
