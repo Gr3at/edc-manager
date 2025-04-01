@@ -1,3 +1,8 @@
 .vscode
 *.exe
 config.json
+.env
+.env.prod
+.docker
+tmp
+cover.out

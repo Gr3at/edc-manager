@@ -1,0 +1,101 @@
+kind: PodDisruptionBudget
+apiVersion: policy/v1
+metadata:
+  name: edc-proxy-pdb
+  namespace: marketplace
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: edc-proxy
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: edc-proxy-deployment
+  namespace: marketplace
+  labels:
+    app: edc-proxy
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: edc-proxy
+  template:
+    metadata:
+      labels:
+        app: edc-proxy
+    spec:
+      securityContext:
+        fsGroup: 1001
+        runAsUser: 1001
+        runAsGroup: 1001
+      imagePullSecrets:
+        - name: marketplace-registry-pull-secrets
+      containers:
+        - name: edc-proxy
+          image: registry.atosresearch.eu:18519/edc-proxy:${IMAGE_TAG}
+          imagePullPolicy: Always
+          env:
+            - name: GOMEMLIMIT
+              valueFrom:
+                resourceFieldRef:
+                  resource: limits.memory
+            - name: GOMAXPROCS
+              valueFrom:
+                resourceFieldRef:
+                  resource: limits.cpu
+          envFrom:
+            - secretRef:
+                name: edc-proxy-secrets
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      restartPolicy: Always
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: edc-proxy-service
+  namespace: marketplace
+  labels:
+    app: edc-proxy
+    tier: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: edc-proxy
+  ports:
+    - name: edc-proxy-port
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+---
+# don't expose to the internet - i.e. no ingress
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: edc-proxy-allow-access-from-mp-network-policy
+  namespace: marketplace
+spec:
+  podSelector:
+    matchLabels:
+      app: edc-proxy
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: marketplace-webapp
+          namespaceSelector:
+            matchLabels:
+              name: marketplace
+      ports:
+        - protocol: TCP
+          port: 8080
