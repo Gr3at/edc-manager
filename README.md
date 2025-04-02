@@ -1,12 +1,15 @@
+# EDC Manager
 
-# Get started
+The Eclipse Dataspace Connector Manager enables the control of multiple Connectors through a unified API.
+
+## Get started
 
 Before running the service create a local `.env` file. Use the same variables defined in `.env.sample`.
 
 - Run the service: `go mod tidy` & `go run main.go`
 
 
-# Development
+## Development
 
 - Make sure all dependencies are installed: `go mod tidy`
 - Start postgres db: `podman run --name edc-db -p 5432:5432/tcp -e POSTGRES_PASSWORD=test -e POSTGRES_USER=test -e POSTGRES_DB=edc -d postgres:15.1-alpine3.16`
@@ -14,14 +17,14 @@ Before running the service create a local `.env` file. Use the same variables de
   - [air](https://github.com/air-verse/air) __for server development with hot reloading capabilities__ 
   - or boot up the default gin server with `go run main.go`
 
-# Production
+## Production
 
 - Migrate DB: `go run migrate/migrate.go`
 - Build: `go build .`
 - Run executable: `./edc-proxy`
 
 
-# Testing
+## Testing
 
 - Test all project folders: `go test ./... -json -coverprofile cover.out`
 - Open coverage report in the browser: `go tool cover -html=cover.out`
@@ -30,12 +33,12 @@ Before running the service create a local `.env` file. Use the same variables de
 
 - Race condition detector: `CGO_ENABLED=1 go test -race`
 
-# Containerized Local Testing
+## Containerized Local Testing
 
 `sh scripts/local-deployment.sh`
 
 
-# K8S Deployment
+## K8S Deployment
 
 To create the secret resource execute the following commands:
 1. (if not present) `kubectl -n marketplace create secret generic edc-proxy-secrets --from-env-file=.env.prod --dry-run=client -o yaml`
